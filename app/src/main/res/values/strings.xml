@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Dart News</string>
+    <string name="article_avatar">Article avatar</string>
+    <string name="news">News</string>
+    <string name="open_menu">Open Menu</string>
+    <string name="to_news_screen">Navigate to %1s</string>
+
+    <string name="test_large_title">
+        Brand it like Beckham: How has this World Cup affected the ‘brands’ associated with it?
+    </string>
+
+    <string name="test_large_content">
+        CNN — Traditionally billions of viewers watch the World Cup, and as they concentrate on what is happening on the pitch, the names of some of the world’s biggest companies flash behind the players on a rolling, technicolored loop – Budweiser, Visa, Coca-Cola, Qatar Airways, Adidas, McDonalds, Wanda, Vivo, Hyundai Kia.
+But Qatar 2022 is different. Many of these brands, particularly those with Western world roots, have become caught in the geopolitical crosshairs of this tournament, balancing their sponsorship with criticisms levelled at FIFA, soccer’s world governing body, and Qatar, the host, notably around human rights issues.
+Not that it is affecting FIFA’s bottom line.FIFA President Gianni Infantino said on Friday at a news conference that the organization has earned a record $7.5 billion in revenue through commercial deals tied to the 2022 World Cup, $1 billion more than what it earned from the 2018 World Cup.
+    </string>
+
+    <string name="test_author">Issy Ronald, CNN</string>
+
+</resources>
