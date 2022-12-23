@@ -24,12 +24,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
-        NewsTopAppBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        )
-    },
+            NewsTopAppBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            )
+        },
         bottomBar = {
             NewsBottomNavigation(
                 modifier = Modifier

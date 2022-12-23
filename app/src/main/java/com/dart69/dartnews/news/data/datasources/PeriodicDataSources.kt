@@ -13,12 +13,20 @@ interface RemotePeriodicDataSource<T> : PeriodicDataSource<T>
 interface CachedPeriodicDataSource<T> : PeriodicDataSource<T> {
     suspend fun cache(period: Period, data: List<T>)
 
+    suspend fun clear(period: Period)
+
     abstract class Default<T> : CachedPeriodicDataSource<T> {
         private val dataHolder = MutableStateFlow(mapOf<Period, List<T>>())
 
         override suspend fun cache(period: Period, data: List<T>) {
             dataHolder.update { byPeriod ->
                 byPeriod.plus(period to data)
+            }
+        }
+
+        override suspend fun clear(period: Period) {
+            dataHolder.update { byPeriod ->
+                byPeriod.minus(period)
             }
         }
 

@@ -2,6 +2,7 @@ package com.dart69.dartnews.news.domain.repository
 
 import com.dart69.dartnews.FakeRemoteDataSource
 import com.dart69.dartnews.TestDispatchers
+import com.dart69.dartnews.news.data.DefaultPeriodicRepository
 import com.dart69.dartnews.news.data.datasources.CachedPeriodicDataSource
 import com.dart69.dartnews.news.data.datasources.RemotePeriodicDataSource
 import com.dart69.dartnews.news.data.datasources.TestModel
@@ -19,7 +20,7 @@ data class ApiTestModel(
     val title: String,
 )
 
-private typealias BaseRepository = PeriodicRepository.Default<ApiTestModel, TestModel>
+private typealias BaseRepository = DefaultPeriodicRepository<ApiTestModel, TestModel>
 
 internal class PeriodicRepositoryTest {
     private val dispatchers = TestDispatchers()
@@ -45,10 +46,10 @@ internal class PeriodicRepositoryTest {
     @Test
     fun loadByPeriod() = runBlocking {
         val monthResults = async {
-            repository.loadByPeriod(Period.Month).toList()
+            repository.observe(Period.Month).toList()
         }
         val dayResults = async {
-            repository.loadByPeriod(Period.Day).toList()
+            repository.observe(Period.Day).toList()
         }
         assertTrue(monthResults.await().first() is Results.Loading)
         assertTrue(monthResults.await().component2() is Results.Completed)

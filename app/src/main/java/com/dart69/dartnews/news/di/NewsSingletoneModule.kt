@@ -4,9 +4,7 @@ import com.dart69.dartnews.news.data.DefaultArticlesRepository
 import com.dart69.dartnews.news.data.datasources.ArticlesCachedDataSource
 import com.dart69.dartnews.news.data.datasources.ArticlesRemoteDataSource
 import com.dart69.dartnews.news.data.datasources.MostViewedApi
-import com.dart69.dartnews.news.data.entities.ArticleResponse
 import com.dart69.dartnews.news.domain.model.AppDispatchers
-import com.dart69.dartnews.news.domain.model.Article
 import com.dart69.dartnews.news.domain.model.AvailableDispatchers
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
 import dagger.Module
@@ -27,9 +25,17 @@ annotation class ApiKey
 @Retention(AnnotationRetention.BINARY)
 annotation class BaseUrl
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class HostAddress
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NewsSingletonModule {
+
+    @Provides
+    @HostAddress
+    fun provideHostAddress(): String = "www.nytimes.com"
 
     @Provides
     @BaseUrl
@@ -38,17 +44,6 @@ object NewsSingletonModule {
     @Provides
     @ApiKey
     fun provideApiKey(): String = "YjSGmygj9kTfxnuqYiKkxmMHoEbRuuya"
-
-    @Provides
-    fun provideModelMapper(): (ArticleResponse) -> Article = { response ->
-        Article(
-            title = response.title,
-            content = response.abstract,
-            byLine = response.byline,
-            publishDate = response.published_date,
-            titleImageUrl = response.media.firstOrNull()?.`media-metadata`?.firstOrNull()?.url.orEmpty()
-        )
-    }
 
     @Provides
     fun provideDispatchers(): AvailableDispatchers = AppDispatchers()
@@ -87,13 +82,11 @@ object NewsSingletonModule {
     fun provideArticlesRepository(
         remoteDataSource: ArticlesRemoteDataSource,
         cachedDataSource: ArticlesCachedDataSource,
-        mapper: (ArticleResponse) -> Article,
         dispatchers: AvailableDispatchers,
     ): ArticlesRepository =
         DefaultArticlesRepository(
             remoteDataSource,
             cachedDataSource,
-            mapper,
             dispatchers
         )
 }

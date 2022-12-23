@@ -1,22 +1,17 @@
 package com.dart69.dartnews.news.presentation
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.dart69.dartnews.R
 import com.dart69.dartnews.news.domain.model.Article
 import com.dart69.dartnews.ui.theme.NewsCardDefaults
@@ -29,11 +24,10 @@ import java.util.*
 fun ListItem(
     modifier: Modifier = Modifier,
     colors: CardColors = NewsCardDefaults.cardColors(),
-    avatarShape: Shape = CircleShape,
     contentPadding: PaddingValues = NewsListItemDefaults.paddingValues(),
+    avatar: @Composable RowScope.() -> Unit,
     title: String,
     content: String,
-    avatar: Painter
 ) {
     ElevatedCard(modifier = modifier, colors = colors) {
         Row(
@@ -63,16 +57,35 @@ fun ListItem(
                     style = Typography.bodyLarge
                 )
             }
-            Image(
-                painter = avatar,
-                contentDescription = stringResource(id = R.string.article_avatar),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
-                    .aspectRatio(1.0f)
-                    .clip(avatarShape)
-            )
+            avatar()
         }
+    }
+}
+
+@Composable
+fun CircleAsyncAvatar(
+    modifier: Modifier = Modifier,
+    model: Any?,
+    contentDescription: String
+) {
+    Box(
+        modifier = Modifier.wrapContentSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+        AsyncImage(
+            modifier = modifier
+                .padding(
+                    top = Dimens.SmallPadding,
+                    bottom = Dimens.SmallPadding,
+                    end = Dimens.SmallPadding
+                )
+                .aspectRatio(1.0f)
+                .clip(CircleShape),
+            model = model,
+            contentDescription = contentDescription,
+            contentScale = ContentScale.Crop,
+        )
     }
 }
 
@@ -97,6 +110,11 @@ fun ArticleItemPreview() {
             ),
         title = article.title,
         content = article.content,
-        avatar = painterResource(id = R.drawable.image_sample)
+        avatar = {
+            CircleAsyncAvatar(
+                model = R.drawable.image_sample,
+                contentDescription = "Avatar"
+            )
+        }
     )
 }
