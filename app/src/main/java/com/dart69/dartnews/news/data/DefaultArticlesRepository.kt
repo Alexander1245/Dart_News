@@ -7,6 +7,7 @@ import com.dart69.dartnews.news.domain.model.Article
 import com.dart69.dartnews.news.domain.model.AvailableDispatchers
 import com.dart69.dartnews.news.domain.model.Period
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
+import kotlinx.coroutines.withContext
 
 private typealias BaseRepository = DefaultPeriodicRepository<ArticleResponse, Article>
 
@@ -22,11 +23,12 @@ private val mapper = { response: ArticleResponse ->
 
 class DefaultArticlesRepository(
     remoteDataSource: ArticlesRemoteDataSource,
-    private val cachedDataSource: ArticlesCachedDataSource,
+    cachedDataSource: ArticlesCachedDataSource,
     dispatchers: AvailableDispatchers,
     modelMapper: (ArticleResponse) -> Article = mapper,
 ) : BaseRepository(remoteDataSource, cachedDataSource, modelMapper, dispatchers),
     ArticlesRepository {
-    override suspend fun hasLocalData(period: Period): Boolean =
+    override suspend fun hasLocalData(period: Period): Boolean = withContext(dispatchers.io) {
         cachedDataSource.loadByPeriod(period).isNotEmpty()
+    }
 }

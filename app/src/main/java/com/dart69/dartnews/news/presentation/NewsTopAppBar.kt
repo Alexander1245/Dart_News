@@ -1,5 +1,6 @@
 package com.dart69.dartnews.news.presentation
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ fun NewsTopAppBar(
     navigationIcon: ImageVector = Icons.Default.Menu,
     iconContentDescription: String = stringResource(id = R.string.open_menu),
     onIconClick: () -> Unit = {},
+    actions:  @Composable (RowScope.() -> Unit) = {}
 ) {
     TopAppBar(
         modifier = modifier,
@@ -35,6 +37,7 @@ fun NewsTopAppBar(
                 Icon(imageVector = navigationIcon, contentDescription = iconContentDescription)
             }
         },
+        actions = actions
     )
 }
 

@@ -1,10 +1,19 @@
 <resources>
     <string name="app_name">Dart News</string>
+    <string name="articles">Articles</string>
     <string name="article_avatar">Article avatar</string>
     <string name="news">News</string>
     <string name="open_menu">Open Menu</string>
     <string name="to_news_screen">Navigate to %1s</string>
+    <string name="loading_please_wait">Loading… Please Wait.</string>
+    <string name="internal_error">Internal error occurred.</string>
     <string name="disconnected">Disconnected</string>
+    <string name="try_again">Try Again</string>
+    <string name="filter_by_periods">Filter by Periods</string>
+    <string name="today">Today</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="more">More</string>
     <string name="what_went_wrong">
         Make sure that you have stable internet connection and turned off VPN. Server not responding.
     </string>

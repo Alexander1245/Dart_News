@@ -37,39 +37,46 @@ class DefaultConnectionObserver(
             } else {
                 ConnectionState.Disconnected
             }
-        }.flowOn(dispatchers.io)
+        }.distinctUntilChanged().flowOn(dispatchers.io)
 }
 
 class DefaultNetworkObserver(
     private val connectivityManager: ConnectivityManager,
+    private val initialTimeout: Long = 5000L,
 ) : NetworkObserver {
 
     override fun observeNetworkState(): Flow<NetworkState> = callbackFlow {
+        val initialState = launch {
+            delay(initialTimeout)
+            send(NetworkState.Unavailable)
+        }
+
         val callback = object : NetworkCallback() {
-            private fun sendState(networkState: NetworkState) {
+            private fun sendAndCancelInitial(networkState: NetworkState) {
                 launch {
+                    if(initialState.isActive) initialState.cancel()
                     send(networkState)
                 }
             }
 
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                sendState(NetworkState.Available)
+                sendAndCancelInitial(NetworkState.Available)
             }
 
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 super.onLosing(network, maxMsToLive)
-                sendState(NetworkState.Losing)
+                sendAndCancelInitial(NetworkState.Losing)
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                sendState(NetworkState.Lost)
+                sendAndCancelInitial(NetworkState.Lost)
             }
 
             override fun onUnavailable() {
                 super.onUnavailable()
-                sendState(NetworkState.Unavailable)
+                sendAndCancelInitial(NetworkState.Unavailable)
             }
         }
         connectivityManager.registerDefaultNetworkCallback(callback)

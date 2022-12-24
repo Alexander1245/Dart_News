@@ -11,9 +11,22 @@ import com.dart69.dartnews.news.domain.networking.ConnectionObserver
 import com.dart69.dartnews.news.domain.networking.ConnectionState
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+@OptIn(FlowPreview::class)
+fun <T1, T2, R> Flow<T1>.combineFlatten(
+    other: Flow<T2>,
+    concurrency: Int = DEFAULT_CONCURRENCY,
+    transform: suspend (T1, T2) -> Flow<R>,
+
+    ): Flow<R> {
+    return this.combine(other) { data1, data2 ->
+        transform(data1, data2)
+    }.flattenMerge(concurrency)
+}
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
@@ -22,28 +35,33 @@ class NewsViewModel @Inject constructor(
     private val connectionObserver: ConnectionObserver
 ) : BaseViewModel<NewsScreenState>() {
     private val screenState = MutableStateFlow<NewsScreenState>(NewsScreenState.Loading)
-    private val periods = MutableStateFlow(Period.Day)
-    private val isConnectionAvailable = MutableStateFlow(false)
+    private val period = MutableStateFlow(Period.Day)
 
     init {
-        viewModelScope.launch(dispatchers.default) {
-            connectionObserver.observeConnectionState().collect { connectionState ->
-                isConnectionAvailable.emit(connectionState == ConnectionState.Connected)
-            }
-        }
-
-        viewModelScope.launch(dispatchers.default) {
-            isConnectionAvailable.combine(periods) { isAvailable, period ->
-                if (isAvailable || repository.hasLocalData(period)) {
-                    repository.observe(period).collect { results ->
-                        screenState.emit(results.mapToScreenState(screenStateMapper))
-                    }
-                } else screenState.emit(NewsScreenState.Disconnected)
-            }.collect()
-        }
+        fetch()
     }
 
     override fun observeScreenState(): StateFlow<NewsScreenState> = screenState.asStateFlow()
+
+    fun fetch() {
+        viewModelScope.launch(dispatchers.default) {
+            connectionObserver.observeConnectionState().map { connectionState ->
+                connectionState == ConnectionState.Connected
+            }.combineFlatten(period) { isConnected, period ->
+                if (isConnected || repository.hasLocalData(period)) {
+                    repository.observe(period).map { toScreenState(it, period) }
+                } else flowOf(NewsScreenState.Disconnected)
+            }.collect { state ->
+                screenState.emit(state)
+            }
+        }
+    }
+
+    fun changePeriod(newPeriod: Period) {
+        viewModelScope.launch(dispatchers.default) {
+            period.emit(newPeriod)
+        }
+    }
 }
 
 sealed class NewsScreenState : ScreenState {
@@ -53,14 +71,12 @@ sealed class NewsScreenState : ScreenState {
 
     data class Error(val throwable: Throwable) : NewsScreenState()
 
-    data class Completed(val articles: List<Article>) : NewsScreenState()
+    data class Completed(val articles: List<Article>, val period: Period) : NewsScreenState()
 }
 
-fun <T, R : ScreenState> Results<T>.mapToScreenState(mapper: (Results<T>) -> R): R = mapper(this)
-
-private val screenStateMapper = { results: Results<List<Article>> ->
+private val toScreenState = { results: Results<List<Article>>, period: Period ->
     when (results) {
-        is Results.Completed -> NewsScreenState.Completed(results.data)
+        is Results.Completed -> NewsScreenState.Completed(results.data, period)
         is Results.Loading -> NewsScreenState.Loading
         is Results.Error -> NewsScreenState.Error(results.throwable)
     }

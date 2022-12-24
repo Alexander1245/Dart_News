@@ -14,8 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dart69.dartnews.news.domain.model.Screen
 import com.dart69.dartnews.news.presentation.NewsBottomNavigation
-import com.dart69.dartnews.news.presentation.NewsScreen
-import com.dart69.dartnews.news.presentation.NewsTopAppBar
+import com.dart69.dartnews.news.presentation.ScaffoldNewsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,13 +22,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     Scaffold(
         modifier = modifier,
-        topBar = {
-            NewsTopAppBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            )
-        },
         bottomBar = {
             NewsBottomNavigation(
                 modifier = Modifier
@@ -45,7 +37,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            composable(Screen.News.route) { NewsScreen(modifier = Modifier.fillMaxSize()) }
+            composable(Screen.News.route) { ScaffoldNewsScreen(modifier = Modifier.fillMaxSize()) }
         }
     }
 }
