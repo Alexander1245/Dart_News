@@ -130,6 +130,10 @@ fun DrawerItems(
                     drawerItem.onClick()
                 },
                 selected = index == indexOfSelected,
+                colors = NavigationDrawerItemDefaults.colors(
+                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSecondary
+                )
             )
         }
     }

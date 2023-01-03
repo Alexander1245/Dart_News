@@ -16,6 +16,18 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
+class DetailsViewModel @Inject constructor(
+    dispatchers: AvailableDispatchers,
+) : EventViewModel<OpenUrlPage>(dispatchers) {
+
+    fun openFullArticleDetails(article: Article) {
+        viewModelScope.launch(dispatchers.default) {
+            sendEvent(OpenUrlPage(article.sourceUrl))
+        }
+    }
+}
+
 data class OpenUrlPage(val url: String) : SingleUiEvent
 
 @SuppressLint("ComposableNaming")
@@ -28,18 +40,6 @@ fun <T> SharedFlow<T>.collectAsEffectWithLifecycle(
     LaunchedEffect(key1 = Unit) {
         lifecycleOwner.repeatOnLifecycle(lifecycleState) {
             collect(block)
-        }
-    }
-}
-
-@HiltViewModel
-class DetailsViewModel @Inject constructor(
-    dispatchers: AvailableDispatchers,
-) : EventViewModel<OpenUrlPage>(dispatchers) {
-
-    fun openFullArticleDetails(article: Article) {
-        viewModelScope.launch(dispatchers.default) {
-            sendEvent(OpenUrlPage(article.sourceUrl))
         }
     }
 }
