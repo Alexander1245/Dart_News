@@ -14,10 +14,12 @@ object NewsTopAppBarDefaults {
         containerColor: Color = MaterialTheme.colorScheme.primary,
         titleContentColor: Color = MaterialTheme.colorScheme.onPrimary,
         navigationIconColor: Color = MaterialTheme.colorScheme.onPrimary,
+        actionIconContentColor: Color = MaterialTheme.colorScheme.onPrimary
     ): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
         containerColor = containerColor,
         titleContentColor = titleContentColor,
-        navigationIconContentColor = navigationIconColor
+        navigationIconContentColor = navigationIconColor,
+        actionIconContentColor = actionIconContentColor
     )
 }
 

@@ -1,15 +1,14 @@
 package com.dart69.dartnews.news.presentation
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
-import com.dart69.dartnews.main.presentation.BaseViewModel
+import com.dart69.dartnews.R
 import com.dart69.dartnews.main.presentation.ScreenState
-import com.dart69.dartnews.news.domain.model.Article
-import com.dart69.dartnews.news.domain.model.AvailableDispatchers
-import com.dart69.dartnews.news.domain.model.Period
-import com.dart69.dartnews.news.domain.model.Results
-import com.dart69.dartnews.news.domain.networking.ConnectionObserver
-import com.dart69.dartnews.news.domain.networking.ConnectionState
-import com.dart69.dartnews.news.domain.repository.ArticlesRepository
+import com.dart69.dartnews.main.presentation.StatefulViewModel
+import com.dart69.dartnews.news.domain.model.*
+import com.dart69.dartnews.news.domain.usecase.FetchArticlesUseCase
+import com.dart69.dartnews.news.networking.ConnectionRefusedException
+import com.dart69.dartnews.news.other.AvailableDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -30,54 +29,63 @@ fun <T1, T2, R> Flow<T1>.combineFlatten(
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-    private val repository: ArticlesRepository,
-    private val dispatchers: AvailableDispatchers,
-    private val connectionObserver: ConnectionObserver
-) : BaseViewModel<NewsScreenState>() {
-    private val screenState = MutableStateFlow<NewsScreenState>(NewsScreenState.Loading)
-    private val period = MutableStateFlow(Period.Day)
+    dispatchers: AvailableDispatchers,
+    private val fetchArticlesUseCase: FetchArticlesUseCase,
+) : StatefulViewModel<NewsScreenState>(NewsScreenState.Loading(R.string.most_viewed), dispatchers) {
+    private val articleDetails = MutableStateFlow(ArticleDetails.Default)
 
     init {
         fetch()
     }
 
-    override fun observeScreenState(): StateFlow<NewsScreenState> = screenState.asStateFlow()
-
     fun fetch() {
         viewModelScope.launch(dispatchers.default) {
-            connectionObserver.observeConnectionState().map { connectionState ->
-                connectionState == ConnectionState.Connected
-            }.combineFlatten(period) { isConnected, period ->
-                if (isConnected || repository.hasLocalData(period)) {
-                    repository.observe(period).map { toScreenState(it, period) }
-                } else flowOf(NewsScreenState.Disconnected)
-            }.collect { state ->
-                screenState.emit(state)
+            fetchArticlesUseCase(articleDetails).collect {
+                emitScreenState(it.toScreenState(articleDetails.value))
             }
         }
     }
 
-    fun changePeriod(newPeriod: Period) {
-        viewModelScope.launch(dispatchers.default) {
-            period.emit(newPeriod)
+    fun loadByPeriod(period: Period) {
+        articleDetails.update { key ->
+            key.copy(period = period)
+        }
+    }
+
+    fun loadByType(type: ArticlesType) {
+        articleDetails.update { key ->
+            key.copy(type = type)
         }
     }
 }
 
 sealed class NewsScreenState : ScreenState {
-    object Disconnected : NewsScreenState()
+    abstract val title: Int
 
-    object Loading : NewsScreenState()
+    data class Disconnected(@StringRes override val title: Int) : NewsScreenState()
 
-    data class Error(val throwable: Throwable) : NewsScreenState()
+    data class Loading(@StringRes override val title: Int) : NewsScreenState()
 
-    data class Completed(val articles: List<Article>, val period: Period) : NewsScreenState()
+    data class Error(val throwable: Throwable, @StringRes override val title: Int) :
+        NewsScreenState()
+
+    data class Completed(
+        val articles: List<Article>,
+        @StringRes val period: Int,
+        @StringRes override val title: Int,
+    ) : NewsScreenState()
 }
 
-private val toScreenState = { results: Results<List<Article>>, period: Period ->
-    when (results) {
-        is Results.Completed -> NewsScreenState.Completed(results.data, period)
-        is Results.Loading -> NewsScreenState.Loading
-        is Results.Error -> NewsScreenState.Error(results.throwable)
+private fun Results<List<Article>>.toScreenState(key: ArticleDetails): NewsScreenState {
+    val titleRes = key.type.stringRes
+    val periodRes = key.period.stringRes
+    val errorMapper = { throwable: Throwable ->
+        if (throwable is ConnectionRefusedException) NewsScreenState.Disconnected(titleRes)
+        else NewsScreenState.Error(throwable, titleRes)
+    }
+    return when (this) {
+        is Results.Completed -> NewsScreenState.Completed(data, periodRes, titleRes)
+        is Results.Loading -> NewsScreenState.Loading(titleRes)
+        is Results.Error -> errorMapper(throwable)
     }
 }

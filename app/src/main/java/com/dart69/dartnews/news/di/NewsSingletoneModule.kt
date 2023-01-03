@@ -3,10 +3,11 @@ package com.dart69.dartnews.news.di
 import com.dart69.dartnews.news.data.DefaultArticlesRepository
 import com.dart69.dartnews.news.data.datasources.ArticlesCachedDataSource
 import com.dart69.dartnews.news.data.datasources.ArticlesRemoteDataSource
-import com.dart69.dartnews.news.data.datasources.MostViewedApi
-import com.dart69.dartnews.news.domain.model.AppDispatchers
-import com.dart69.dartnews.news.domain.model.AvailableDispatchers
+import com.dart69.dartnews.news.data.datasources.MostPopularApi
+import com.dart69.dartnews.news.data.datasources.ResponseFactory
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
+import com.dart69.dartnews.news.other.AppDispatchers
+import com.dart69.dartnews.news.other.AvailableDispatchers
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,20 +58,22 @@ object NewsSingletonModule {
 
     @Provides
     @Singleton
-    fun provideMostViewedApi(retrofit: Retrofit): MostViewedApi = retrofit.create()
+    fun provideMostPopularApi(retrofit: Retrofit): MostPopularApi = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideResponseFactory(
+        @ApiKey apiKey: String,
+        mostPopularApi: MostPopularApi
+    ): ResponseFactory = ResponseFactory.Default(apiKey, mostPopularApi)
 
     @Provides
     @Singleton
     fun provideArticlesRemoteDataSource(
-        mostViewedApi: MostViewedApi,
-        @ApiKey apiKey: String,
+        responseFactory: ResponseFactory,
         dispatchers: AvailableDispatchers
     ): ArticlesRemoteDataSource =
-        ArticlesRemoteDataSource.Default(
-            mostViewedApi,
-            apiKey,
-            dispatchers
-        )
+        ArticlesRemoteDataSource.Default(responseFactory, dispatchers)
 
     @Provides
     @Singleton

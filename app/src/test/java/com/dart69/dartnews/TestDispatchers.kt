@@ -1,6 +1,6 @@
 package com.dart69.dartnews
 
-import com.dart69.dartnews.news.domain.model.AvailableDispatchers
+import com.dart69.dartnews.news.other.AvailableDispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

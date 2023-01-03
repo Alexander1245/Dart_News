@@ -1,44 +1,66 @@
 package com.dart69.dartnews.news.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dart69.dartnews.R
-import com.dart69.dartnews.news.domain.model.DividerItem
-import com.dart69.dartnews.news.domain.model.MenuItem
+import com.dart69.dartnews.destinations.DetailsScreenDestination
+import com.dart69.dartnews.news.domain.model.Article
+import com.dart69.dartnews.news.domain.model.ArticlesType
 import com.dart69.dartnews.news.domain.model.Period
-import com.dart69.dartnews.news.domain.model.TextMenuItem
+import com.dart69.dartnews.news.other.*
+import com.dart69.dartnews.news.presentation.ui.*
 import com.dart69.dartnews.ui.values.Dimens
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-private fun newsAppBarMenuItems(viewModel: NewsViewModel): List<MenuItem> = listOf(
-    TextMenuItem(stringResource(id = R.string.filter_by_periods)) {},
-    DividerItem,
-    TextMenuItem(stringResource(id = R.string.today)) {
-        viewModel.changePeriod(Period.Day)
-    },
-    TextMenuItem(stringResource(id = R.string.week)) {
-        viewModel.changePeriod(Period.Week)
-    },
-    TextMenuItem(stringResource(id = R.string.month)) {
-        viewModel.changePeriod(Period.Month)
+private fun newsAppBarMenuItems(viewModel: NewsViewModel): List<MenuItem> {
+    val initialList = listOf<MenuItem>(TextItem(stringResource(id = R.string.filter_by_periods)))
+    val clickableTextItems = Period.values().map {
+        ClickableTextItem(stringResource(id = it.stringRes)) {
+            viewModel.loadByPeriod(it)
+        }
     }
-)
+    return initialList + clickableTextItems
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun appDrawerItems(
+    viewModel: NewsViewModel,
+): List<DrawerItem> {
+    val initialList = listOf(DrawerItem.Spacer(modifier = Modifier.height(Dimens.MediumPadding)))
+    val navigationItems = ArticlesType.values().map {
+        DrawerItem.NavigationItem(
+            icon = it.iconRes,
+            onClick = {
+                viewModel.loadByType(it)
+            },
+            label = it.stringRes,
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+    }
+    return initialList + navigationItems
+}
 
 @Composable
-fun NewsScreen(
+fun NewsStates(
     modifier: Modifier = Modifier,
     screenState: NewsScreenState,
     onTryAgainClick: () -> Unit,
+    onArticleClick: (Article) -> Unit,
 ) {
     Box(
         modifier = modifier,
@@ -49,7 +71,11 @@ fun NewsScreen(
                 ProgressBox(message = stringResource(id = R.string.loading_please_wait))
             }
             is NewsScreenState.Completed -> {
-                ArticlesColumn(modifier = Modifier.fillMaxSize(), articles = screenState.articles)
+                ArticlesColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    articles = screenState.articles,
+                    onItemClick = onArticleClick
+                )
             }
             is NewsScreenState.Error -> {
                 AlertBox(
@@ -77,32 +103,122 @@ fun NewsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScaffoldNewsScreen(
-    modifier: Modifier = Modifier,
-    viewModel: NewsViewModel = hiltViewModel(),
+fun DrawerItems(
+    items: List<DrawerItem>,
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope,
 ) {
-    val screenState by viewModel.observeScreenState().collectAsState()
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            NewsTopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                actions = {
-                    NewsDropdownMenu(
-                        items = newsAppBarMenuItems(viewModel = viewModel),
+    var indexOfSelected by rememberSaveable {
+        mutableStateOf(items.indexOfFirstClickable())
+    }
+    items.forEachIndexed { index, drawerItem ->
+        when (drawerItem) {
+            is DrawerItem.Spacer -> Spacer(modifier = drawerItem.modifier)
+            is DrawerItem.Divider -> Divider(modifier = drawerItem.modifier)
+            is DrawerItem.NavigationItem -> NavigationDrawerItem(
+                modifier = drawerItem.modifier,
+                label = { ContentText(text = stringResource(id = drawerItem.label)) },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = drawerItem.icon),
+                        contentDescription = stringResource(id = R.string.navigate)
                     )
-                }
+                },
+                onClick = {
+                    coroutineScope.launch { drawerState.close() }
+                    indexOfSelected = index
+                    drawerItem.onClick()
+                },
+                selected = index == indexOfSelected,
             )
         }
-    ) {
-        NewsScreen(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            screenState = screenState,
-            onTryAgainClick = viewModel::fetch,
-        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NavigationDrawer(
+    modifier: Modifier = Modifier,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    drawerItems: List<DrawerItem>,
+    content: @Composable () -> Unit,
+) {
+    ModalNavigationDrawer(
+        modifier = modifier,
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                DrawerItems(
+                    items = drawerItems,
+                    drawerState = drawerState,
+                    coroutineScope = scope
+                )
+            }
+        },
+        content = content,
+    )
+}
+
+@Destination(start = true)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLifecycleComposeApi::class)
+@Composable
+fun ScaffoldNewsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: NewsViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator,
+) {
+    val screenState by viewModel.observeScreenState().collectAsStateWithLifecycle()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    NavigationDrawer(
+        drawerItems = appDrawerItems(viewModel),
+        drawerState = drawerState,
+        scope = scope,
+    ) {
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                NewsTopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    titleText = stringResource(id = screenState.title),
+                    actions = {
+                        screenState.onComplete {
+                            ContentText(text = stringResource(id = it.period))
+                        }
+                        NewsDropdownMenu(
+                            items = newsAppBarMenuItems(viewModel = viewModel),
+                        )
+                    },
+                    onIconClick = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+        ) {
+            NewsStates(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                screenState = screenState,
+                onTryAgainClick = viewModel::fetch,
+                onArticleClick = { article ->
+                    navigator.navigate(direction = DetailsScreenDestination(article))
+                }
+            )
+        }
+    }
+
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun NewsScreenState.onComplete(block: @Composable (NewsScreenState.Completed) -> Unit) {
+    if (this is NewsScreenState.Completed) {
+        block(this)
+    }
+}
 

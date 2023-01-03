@@ -5,15 +5,23 @@
     <string name="news">News</string>
     <string name="open_menu">Open Menu</string>
     <string name="to_news_screen">Navigate to %1s</string>
+    <string name="navigate">Navigate</string>
     <string name="loading_please_wait">Loading… Please Wait.</string>
     <string name="internal_error">Internal error occurred.</string>
     <string name="disconnected">Disconnected</string>
     <string name="try_again">Try Again</string>
     <string name="filter_by_periods">Filter by Periods</string>
-    <string name="today">Today</string>
+    <string name="day">Day</string>
     <string name="week">Week</string>
     <string name="month">Month</string>
     <string name="more">More</string>
+    <string name="most_viewed">Most Viewed</string>
+    <string name="most_shared">Most Shared</string>
+    <string name="most_emailed">Most Emailed</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="published">Published: %1s</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
     <string name="what_went_wrong">
         Make sure that you have stable internet connection and turned off VPN. Server not responding.
     </string>

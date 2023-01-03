@@ -4,20 +4,24 @@ import com.dart69.dartnews.news.data.datasources.ArticlesCachedDataSource
 import com.dart69.dartnews.news.data.datasources.ArticlesRemoteDataSource
 import com.dart69.dartnews.news.data.entities.ArticleResponse
 import com.dart69.dartnews.news.domain.model.Article
-import com.dart69.dartnews.news.domain.model.AvailableDispatchers
-import com.dart69.dartnews.news.domain.model.Period
+import com.dart69.dartnews.news.domain.model.ArticleDetails
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
-import kotlinx.coroutines.withContext
+import com.dart69.dartnews.news.domain.repository.Repository
+import com.dart69.dartnews.news.other.AvailableDispatchers
 
-private typealias BaseRepository = DefaultPeriodicRepository<ArticleResponse, Article>
+private typealias BaseRepository = DefaultRepository<ArticleDetails, ArticleResponse, Article>
 
 private val mapper = { response: ArticleResponse ->
     Article(
         title = response.title,
         content = response.abstract,
+        titleImageUrl = response.media.firstOrNull()?.`media-metadata`
+            ?.maxBy {
+                it.height * it.width
+            }?.url.orEmpty(),
+        sourceUrl = response.url,
         byLine = response.byline,
-        publishDate = response.published_date,
-        titleImageUrl = response.media.firstOrNull()?.`media-metadata`?.firstOrNull()?.url.orEmpty()
+        publishedDate = response.published_date
     )
 }
 
@@ -26,9 +30,9 @@ class DefaultArticlesRepository(
     cachedDataSource: ArticlesCachedDataSource,
     dispatchers: AvailableDispatchers,
     modelMapper: (ArticleResponse) -> Article = mapper,
-) : BaseRepository(remoteDataSource, cachedDataSource, modelMapper, dispatchers),
-    ArticlesRepository {
-    override suspend fun hasLocalData(period: Period): Boolean = withContext(dispatchers.io) {
-        cachedDataSource.loadByPeriod(period).isNotEmpty()
-    }
-}
+) : ArticlesRepository, Repository<ArticleDetails, Article> by BaseRepository(
+    remoteDataSource,
+    cachedDataSource,
+    modelMapper,
+    dispatchers
+)

@@ -1,6 +1,9 @@
 package com.dart69.dartnews.news.domain.model
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
 
 typealias ResultsFlow<T> = Flow<Results<T>>
 
@@ -12,7 +15,7 @@ sealed class Results<T> {
     data class Completed<T>(val data: T) : Results<T>()
 }
 
-fun <T, R> Results<T>.mapResults(onCompleted: (T) -> R): Results<R> = when (this) {
+suspend fun <T, R> Results<T>.mapResults(onCompleted: suspend (T) -> R): Results<R> = when (this) {
     is Results.Loading -> Results.Loading()
     is Results.Error -> Results.Error(throwable)
     is Results.Completed -> Results.Completed(onCompleted(data))

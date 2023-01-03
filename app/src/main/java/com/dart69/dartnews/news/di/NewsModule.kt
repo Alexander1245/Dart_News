@@ -2,13 +2,10 @@ package com.dart69.dartnews.news.di
 
 import android.content.Context
 import android.net.ConnectivityManager
-import com.dart69.dartnews.news.data.networking.DefaultConnectionObserver
-import com.dart69.dartnews.news.data.networking.DefaultNetworkChecker
-import com.dart69.dartnews.news.data.networking.DefaultNetworkObserver
-import com.dart69.dartnews.news.domain.model.AvailableDispatchers
-import com.dart69.dartnews.news.domain.networking.ConnectionObserver
-import com.dart69.dartnews.news.domain.networking.NetworkChecker
-import com.dart69.dartnews.news.domain.networking.NetworkObserver
+import com.dart69.dartnews.news.domain.repository.ArticlesRepository
+import com.dart69.dartnews.news.domain.usecase.FetchArticlesUseCase
+import com.dart69.dartnews.news.networking.*
+import com.dart69.dartnews.news.other.AvailableDispatchers
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,4 +34,10 @@ object NewsModule {
     ): ConnectionObserver = DefaultConnectionObserver(
         networkChecker, networkObserver, dispatchers
     )
+
+    @Provides
+    fun provideFetchArticlesUseCase(
+        repository: ArticlesRepository,
+        connectionObserver: ConnectionObserver
+    ): FetchArticlesUseCase = FetchArticlesUseCase.Default(repository, connectionObserver)
 }

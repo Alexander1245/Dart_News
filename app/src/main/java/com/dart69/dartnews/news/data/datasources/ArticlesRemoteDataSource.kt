@@ -1,20 +1,27 @@
 package com.dart69.dartnews.news.data.datasources
 
 import com.dart69.dartnews.news.data.entities.ArticleResponse
-import com.dart69.dartnews.news.domain.model.Period
-import com.dart69.dartnews.news.domain.model.AvailableDispatchers
+import com.dart69.dartnews.news.domain.model.ArticleDetails
+import com.dart69.dartnews.news.domain.model.ArticlesType
+import com.dart69.dartnews.news.other.AvailableDispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 
-interface ArticlesRemoteDataSource : RemotePeriodicDataSource<ArticleResponse> {
+interface ArticlesRemoteDataSource : RemoteDataSource<ArticleDetails, ArticleResponse> {
+    suspend fun changeArticlesType(newType: ArticlesType)
 
     class Default(
-        private val api: MostViewedApi,
-        private val apiKey: String,
+        private val responseFactory: ResponseFactory,
         private val dispatchers: AvailableDispatchers,
     ) : ArticlesRemoteDataSource {
-        override suspend fun loadByPeriod(period: Period): List<ArticleResponse> =
+        private val type = MutableStateFlow(ArticlesType.MostViewed)
+
+        override suspend fun changeArticlesType(newType: ArticlesType) =
+            type.emit(newType)
+
+        override suspend fun searchBy(key: ArticleDetails): List<ArticleResponse>? =
             withContext(dispatchers.io) {
-                api.loadResponse(period.value, apiKey).body()?.results.orEmpty()
+                responseFactory.create(key).body()?.results
             }
     }
 }
