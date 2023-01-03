@@ -1,4 +1,4 @@
-package com.dart69.dartnews.main.presentation
+package com.dart69.dartnews.main.presentation.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
