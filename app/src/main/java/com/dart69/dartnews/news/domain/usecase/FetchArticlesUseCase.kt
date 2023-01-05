@@ -9,11 +9,12 @@ import com.dart69.dartnews.news.networking.ConnectionState
 import com.dart69.dartnews.news.networking.connectionErrorResults
 import com.dart69.dartnews.news.presentation.combineFlatten
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 interface FetchArticlesUseCase {
     operator fun invoke(details: Flow<ArticleDetails>): ResultsFlow<List<Article>>
 
-    class Default(
+    class Default @Inject constructor(
         private val repository: ArticlesRepository,
         private val connectionObserver: ConnectionObserver,
     ) : FetchArticlesUseCase {

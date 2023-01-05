@@ -27,7 +27,7 @@ internal class CachedDataSourceTest {
     fun testCacheTenListsOfStrings() = runBlocking {
         val dataCount = 10
         val expected = createListsOfStrings(dataCount).onEachIndexed { index, strings ->
-            cachedDataSource.cache(index, strings)
+            cachedDataSource.save(index, strings)
             assertCollectionsEquals(strings, cachedDataSource.searchBy(index)!!)
         }
         val actual = (0 until 10).map { cachedDataSource.searchBy(it) }
@@ -39,7 +39,7 @@ internal class CachedDataSourceTest {
         val dataCount = 10
         val clearCount = 3
         createListsOfStrings(dataCount).forEachIndexed { index, strings ->
-            cachedDataSource.cache(index, strings)
+            cachedDataSource.save(index, strings)
         }
         repeat(clearCount) {
             cachedDataSource.clear(it)

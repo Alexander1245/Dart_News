@@ -142,7 +142,7 @@ fun ArticleItemPreview() {
                     end = Dimens.SmallPadding
                 ),
                 model = R.drawable.image_sample,
-                contentDescription = "Avatar"
+                contentDescription = stringResource(id = R.string.article_avatar)
             )
         }
     )

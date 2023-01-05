@@ -1,19 +1,21 @@
 package com.dart69.dartnews.news.networking
 
+import com.dart69.dartnews.news.di.HostAddress
 import com.dart69.dartnews.news.other.AvailableDispatchers
 import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.UnknownHostException
+import javax.inject.Inject
 
-interface NetworkChecker {
-    suspend fun isNetworkAvailable(): Boolean
+interface ConnectionChecker {
+    suspend fun isConnected(): Boolean
 }
 
-class DefaultNetworkChecker(
-    private val hostAddress: String,
+class DefaultConnectionChecker @Inject constructor(
+    @HostAddress private val hostAddress: String,
     private val dispatchers: AvailableDispatchers,
-) : NetworkChecker {
-    override suspend fun isNetworkAvailable(): Boolean = withContext(dispatchers.io) {
+) : ConnectionChecker {
+    override suspend fun isConnected(): Boolean = withContext(dispatchers.io) {
         try {
             val address = InetAddress.getByName(hostAddress)
             !address.equals("")
