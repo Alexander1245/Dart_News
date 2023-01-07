@@ -116,8 +116,8 @@ fun ContentTextButton(
 @Composable
 fun DetailsScreen(
     modifier: Modifier = Modifier,
-    article: Article,
     viewModel: DetailsViewModel = hiltViewModel(),
+    article: Article,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

@@ -43,3 +43,19 @@ object NewsListItemDefaults {
         bottom = Dimens.SmallPadding
     )
 }
+
+interface NewsListItemColors {
+    val selectedColor: Color
+
+    val unselectedColor: Color
+}
+
+object NewsListItemDefault {
+
+    fun colors(): NewsListItemColors = object : NewsListItemColors {
+        override val selectedColor: Color
+            get() = TODO("Not yet implemented")
+        override val unselectedColor: Color
+            get() = TODO("Not yet implemented")
+    }
+}

@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -14,6 +15,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dart69.dartnews.R
 import com.dart69.dartnews.destinations.DetailsScreenDestination
+import com.dart69.dartnews.details.presentation.collectAsEffectWithLifecycle
 import com.dart69.dartnews.news.domain.model.Article
 import com.dart69.dartnews.news.domain.model.ArticlesType
 import com.dart69.dartnews.news.domain.model.Period
@@ -61,6 +63,7 @@ fun NewsStates(
     screenState: NewsScreenState,
     onTryAgainClick: () -> Unit,
     onArticleClick: (Article) -> Unit,
+    onArticleLongClick: (Article) -> Unit,
 ) {
     Box(
         modifier = modifier,
@@ -74,7 +77,8 @@ fun NewsStates(
                 ArticlesColumn(
                     modifier = Modifier.fillMaxSize(),
                     articles = screenState.articles,
-                    onItemClick = onArticleClick
+                    onItemClick = onArticleClick,
+                    onItemLongClick = onArticleLongClick,
                 )
             }
             is NewsScreenState.Error -> {
@@ -176,6 +180,10 @@ fun ScaffoldNewsScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    viewModel.obtainEvent().collectAsEffectWithLifecycle(LocalLifecycleOwner.current) {
+        navigator.navigate(direction = DetailsScreenDestination(it.article))
+    }
+
     NavigationDrawer(
         drawerItems = appDrawerItems(viewModel),
         drawerState = drawerState,
@@ -210,7 +218,10 @@ fun ScaffoldNewsScreen(
                 screenState = screenState,
                 onTryAgainClick = viewModel::fetch,
                 onArticleClick = { article ->
-                    navigator.navigate(direction = DetailsScreenDestination(article))
+                    viewModel.onArticleClick(article)
+                },
+                onArticleLongClick = { article ->
+                    viewModel.onArticleLongClick(article)
                 }
             )
         }

@@ -40,7 +40,7 @@ abstract class StatefulViewModel<S : ScreenState>(
 ) : ViewModel(), ScreenObserver<S> {
     private val states = MutableStateFlow(initialState)
 
-    protected suspend fun emitScreenState(newState: S) {
+    protected suspend fun emitState(newState: S) {
         states.emit(newState)
     }
 
@@ -58,6 +58,9 @@ abstract class BaseViewModel<S : ScreenState, A : SingleUiEvent>(
         events.emit(newEvent)
     }
 
+    /**
+     * Updates screen state observer. Note that the same states will be ignored.
+     * */
     protected suspend fun emitState(newState: S) {
         states.emit(newState)
     }

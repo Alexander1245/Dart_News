@@ -1,6 +1,6 @@
 package com.dart69.dartnews.news.presentation.ui
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +16,7 @@ import com.dart69.dartnews.ui.values.Dimens
 @Composable
 internal fun getDefaultArticles(size: Int = 30): List<Article> = List(size) {
     Article(
+        id = 0,
         title = stringResource(id = R.string.test_large_title),
         content = stringResource(id = R.string.test_large_content),
         titleImageUrl = "www.testHost.com",
@@ -25,11 +26,13 @@ internal fun getDefaultArticles(size: Int = 30): List<Article> = List(size) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ArticlesColumn(
     modifier: Modifier = Modifier,
     articles: List<Article>,
-    onItemClick: (Article) -> Unit
+    onItemClick: (Article) -> Unit,
+    onItemLongClick: (Article) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier
@@ -39,9 +42,6 @@ fun ArticlesColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimens.ListItemHeight)
-                    .clickable(onClick = {
-                        onItemClick(article)
-                    })
                     .padding(
                         start = Dimens.SmallPadding,
                         end = Dimens.SmallPadding,
@@ -49,6 +49,9 @@ fun ArticlesColumn(
                     ),
                 title = article.title,
                 content = article.content,
+                isSelected = article.isSelected,
+                onClick = { onItemClick(article) },
+                onLongClick = { onItemLongClick(article) },
                 avatar = {
                     AsyncAvatar(
                         modifier = Modifier.padding(
@@ -78,7 +81,8 @@ fun ArticlesColumnPreview() {
         ArticlesColumn(
             modifier = Modifier.fillMaxSize(),
             articles = getDefaultArticles(),
-            onItemClick = {}
+            onItemClick = {},
+            onItemLongClick = {}
         )
     }
 }
