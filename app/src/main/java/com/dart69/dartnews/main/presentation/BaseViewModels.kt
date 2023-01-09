@@ -1,7 +1,7 @@
 package com.dart69.dartnews.main.presentation
 
 import androidx.lifecycle.ViewModel
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import kotlinx.coroutines.flow.*
 
 interface ScreenState {
@@ -40,7 +40,7 @@ abstract class StatefulViewModel<S : ScreenState>(
 ) : ViewModel(), ScreenObserver<S> {
     private val states = MutableStateFlow(initialState)
 
-    protected suspend fun emitScreenState(newState: S) {
+    protected suspend fun emitState(newState: S) {
         states.emit(newState)
     }
 
@@ -58,6 +58,9 @@ abstract class BaseViewModel<S : ScreenState, A : SingleUiEvent>(
         events.emit(newEvent)
     }
 
+    /**
+     * Updates screen state observer. Note that the same states will be ignored.
+     * */
     protected suspend fun emitState(newState: S) {
         states.emit(newState)
     }

@@ -12,7 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.dart69.dartnews.NavGraphs
 import com.dart69.dartnews.appCurrentDestinationAsState
-import com.dart69.dartnews.news.other.BottomBarDestinations
+import com.dart69.dartnews.news.presentation.BottomBarDestinations
 import com.dart69.dartnews.startAppDestination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.navigation.popUpTo

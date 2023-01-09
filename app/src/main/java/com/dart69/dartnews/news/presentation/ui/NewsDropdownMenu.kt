@@ -13,31 +13,82 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.dart69.dartnews.R
-import com.dart69.dartnews.news.other.DividerItem
-import com.dart69.dartnews.news.other.MenuItem
-import com.dart69.dartnews.news.other.ClickableTextItem
+import com.dart69.dartnews.news.presentation.ClickableTextItem
+import com.dart69.dartnews.news.presentation.DividerItem
+import com.dart69.dartnews.news.presentation.MenuItem
+import com.dart69.dartnews.news.presentation.ui.Button.Companion.createButton
+import kotlin.reflect.KClass
+
+sealed class Button(
+    val isEnabled: Boolean,
+    protected val content: @Composable () -> Unit,
+    val onClick: () -> Unit,
+) {
+    @Composable
+    abstract fun Draw()
+
+    class Icon(
+        isEnabled: Boolean,
+        content: @Composable () -> Unit,
+        onClick: () -> Unit
+    ) : Button(isEnabled, content, onClick) {
+        @Composable
+        override fun Draw() {
+            IconButton(onClick = onClick, content = content, enabled = isEnabled)
+        }
+    }
+
+    class Regular(
+        isEnabled: Boolean,
+        content: @Composable () -> Unit,
+        onClick: () -> Unit
+    ) : Button(isEnabled, content, onClick) {
+
+        @Composable
+        override fun Draw() {
+            Button(onClick = onClick, content = { content() }, enabled = isEnabled, colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                disabledContentColor = MaterialTheme.colorScheme.primary,
+            ))
+        }
+    }
+
+    companion object {
+        fun <T : Button> KClass<T>.createButton(
+            isEnabled: Boolean,
+            content: @Composable () -> Unit,
+            onClick: () -> Unit
+        ): T {
+            val button = when (this) {
+                Icon::class -> Icon(isEnabled, content, onClick)
+                Regular::class -> Regular(isEnabled, content, onClick)
+                else -> error("Invalid modelClass.")
+            }
+            return button as T
+        }
+    }
+}
 
 @Composable
 fun NewsDropdownMenu(
     modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
     items: List<MenuItem>,
+    content: @Composable () -> Unit = {
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = stringResource(id = R.string.more)
+        )
+    },
+    buttonClass: KClass<out Button> = Button.Regular::class,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .wrapContentSize(Alignment.TopStart)
     ) {
-        IconButton(
-            onClick = { expanded = true },
-            colors = IconButtonDefaults.iconButtonColors(
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(id = R.string.more)
-            )
-        }
+        buttonClass.createButton(isEnabled, content, onClick = { expanded = true }).Draw()
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }

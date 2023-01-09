@@ -20,6 +20,10 @@
     <string name="most_emailed">Most Emailed</string>
     <string name="open_in_browser">Open in browser</string>
     <string name="published">Published: %1s</string>
+    <string name="selected">Selected</string>
+    <string name="group_actions">Group Actions</string>
+    <string name="select_all">Select All</string>
+    <string name="unselect_all">Unselect All</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="what_went_wrong">

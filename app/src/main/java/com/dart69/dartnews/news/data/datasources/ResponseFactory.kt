@@ -1,16 +1,18 @@
 package com.dart69.dartnews.news.data.datasources
 
 import com.dart69.dartnews.news.data.entities.NytResponse
+import com.dart69.dartnews.news.di.ApiKey
 import com.dart69.dartnews.news.domain.model.ArticleDetails
 import com.dart69.dartnews.news.domain.model.ArticlesType
 import retrofit2.Response
+import javax.inject.Inject
 
 interface ResponseFactory {
 
     suspend fun create(key: ArticleDetails): Response<NytResponse>
 
-    class Default(
-        private val apiKey: String,
+    class Default @Inject constructor(
+        @ApiKey private val apiKey: String,
         private val mostPopularApi: MostPopularApi,
     ) : ResponseFactory {
         override suspend fun create(key: ArticleDetails): Response<NytResponse> {

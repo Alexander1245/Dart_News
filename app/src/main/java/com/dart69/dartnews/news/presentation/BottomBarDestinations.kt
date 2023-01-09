@@ -1,4 +1,4 @@
-package com.dart69.dartnews.news.other
+package com.dart69.dartnews.news.presentation
 
 import androidx.annotation.DrawableRes
 import com.dart69.dartnews.R

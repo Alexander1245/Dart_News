@@ -1,17 +1,28 @@
 package com.dart69.dartnews.news.di
 
+import android.content.Context
+import android.net.ConnectivityManager
+import androidx.room.Room
+import com.dart69.dartnews.news.data.ArticlesCache
 import com.dart69.dartnews.news.data.DefaultArticlesRepository
 import com.dart69.dartnews.news.data.datasources.ArticlesCachedDataSource
 import com.dart69.dartnews.news.data.datasources.ArticlesRemoteDataSource
 import com.dart69.dartnews.news.data.datasources.MostPopularApi
 import com.dart69.dartnews.news.data.datasources.ResponseFactory
+import com.dart69.dartnews.news.data.datasources.db.ArticlesDao
+import com.dart69.dartnews.news.data.datasources.db.ArticlesDataBase
+import com.dart69.dartnews.news.data.mappers.ArticleEntityMapper
+import com.dart69.dartnews.news.data.mappers.ArticleResponseMapper
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
-import com.dart69.dartnews.news.other.AppDispatchers
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.networking.*
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -30,9 +41,73 @@ annotation class BaseUrl
 @Retention(AnnotationRetention.BINARY)
 annotation class HostAddress
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationScope
+
 @Module
 @InstallIn(SingletonComponent::class)
-object NewsSingletonModule {
+interface NewsSingletonModule {
+
+    @Binds
+    fun bindResponseFactory(
+        factory: ResponseFactory.Default
+    ): ResponseFactory
+
+    @Binds
+    fun bindNetworkChecker(
+        connectionChecker: DefaultConnectionChecker
+    ): ConnectionChecker
+
+    @Binds
+    @Singleton
+    fun bindConnectionObserver(
+        connectionObserver: DefaultConnectionObserver
+    ): ConnectionObserver
+
+    @Binds
+    @Singleton
+    fun bindArticlesRemoteDataSource(
+        remoteDataSource: ArticlesRemoteDataSource.Default
+    ): ArticlesRemoteDataSource
+
+    @Binds
+    @Singleton
+    fun bindCache(
+        cache: ArticlesCache.Default
+    ): ArticlesCache
+
+    @Binds
+    @Singleton
+    fun bindArticlesCachedDataSource(
+        dataSource: ArticlesCachedDataSource.Default
+    ): ArticlesCachedDataSource
+
+    @Binds
+    @Singleton
+    fun bindArticlesRepository(
+        repository: DefaultArticlesRepository
+    ): ArticlesRepository
+
+    @Binds
+    fun bindDispatchers(
+        dispatchers: AppDispatchers
+    ): AvailableDispatchers
+
+    @Binds
+    fun bindResponseMapper(
+        mapper: ArticleResponseMapper.Default
+    ): ArticleResponseMapper
+
+    @Binds
+    fun bindEntityMapper(
+        mapper: ArticleEntityMapper.Default
+    ): ArticleEntityMapper
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object NewsSingletonProviders {
 
     @Provides
     @HostAddress
@@ -47,7 +122,9 @@ object NewsSingletonModule {
     fun provideApiKey(): String = "YjSGmygj9kTfxnuqYiKkxmMHoEbRuuya"
 
     @Provides
-    fun provideDispatchers(): AvailableDispatchers = AppDispatchers()
+    @Singleton
+    fun provideNetworkObserver(@ApplicationContext context: Context): NetworkObserver =
+        DefaultNetworkObserver(context.getSystemService(ConnectivityManager::class.java))
 
     @Provides
     @Singleton
@@ -62,34 +139,20 @@ object NewsSingletonModule {
 
     @Provides
     @Singleton
-    fun provideResponseFactory(
-        @ApiKey apiKey: String,
-        mostPopularApi: MostPopularApi
-    ): ResponseFactory = ResponseFactory.Default(apiKey, mostPopularApi)
+    fun provideDataBase(@ApplicationContext context: Context): ArticlesDataBase =
+        Room.databaseBuilder(
+            context,
+            ArticlesDataBase::class.java,
+            ArticlesDataBase::class.simpleName!!
+        ).build()
 
     @Provides
     @Singleton
-    fun provideArticlesRemoteDataSource(
-        responseFactory: ResponseFactory,
-        dispatchers: AvailableDispatchers
-    ): ArticlesRemoteDataSource =
-        ArticlesRemoteDataSource.Default(responseFactory, dispatchers)
+    fun provideArticlesDao(dataBase: ArticlesDataBase): ArticlesDao =
+        dataBase.articlesDao()
 
     @Provides
     @Singleton
-    fun provideArticlesCachedDataSource(): ArticlesCachedDataSource =
-        ArticlesCachedDataSource.Default()
-
-    @Provides
-    @Singleton
-    fun provideArticlesRepository(
-        remoteDataSource: ArticlesRemoteDataSource,
-        cachedDataSource: ArticlesCachedDataSource,
-        dispatchers: AvailableDispatchers,
-    ): ArticlesRepository =
-        DefaultArticlesRepository(
-            remoteDataSource,
-            cachedDataSource,
-            dispatchers
-        )
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope = MainScope()
 }

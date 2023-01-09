@@ -7,10 +7,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.dart69.dartnews.news.other.ClickableTextItem
-import com.dart69.dartnews.news.other.DividerItem
-import com.dart69.dartnews.news.other.MenuItem
-import com.dart69.dartnews.news.other.TextItem
+import com.dart69.dartnews.news.presentation.ClickableTextItem
+import com.dart69.dartnews.news.presentation.DividerItem
+import com.dart69.dartnews.news.presentation.MenuItem
+import com.dart69.dartnews.news.presentation.TextItem
 import com.dart69.dartnews.ui.values.Dimens
 
 @Composable

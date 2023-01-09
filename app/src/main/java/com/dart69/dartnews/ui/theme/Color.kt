@@ -8,6 +8,7 @@ val Pink80 = Color(0xFFEFB8C8)
 val OnPrimaryDark = Color.Black
 val OnSecondaryDark = Color.DarkGray
 val OnSurfaceDark = Color.White
+val OnTertiaryDark = Color.Magenta
 
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
@@ -15,3 +16,4 @@ val Pink40 = Color(0xFF7D5260)
 val OnPrimaryLight = Color(0xFFFFFBFE)
 val OnSecondaryLight = Color.LightGray
 val OnSurfaceLight = Color.Black
+val OnTertiaryLight = Color.Cyan

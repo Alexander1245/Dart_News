@@ -2,7 +2,7 @@ package com.dart69.dartnews.news.domain.model
 
 import androidx.annotation.StringRes
 import com.dart69.dartnews.R
-import com.dart69.dartnews.news.other.Translatable
+import com.dart69.dartnews.news.presentation.Translatable
 
 enum class Period(val value: Int, @StringRes override val stringRes: Int) : Translatable {
 

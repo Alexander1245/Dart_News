@@ -23,7 +23,7 @@ interface RemoteDataSource<K, T> : DataSource<K, T>
  * Example: cachedDataSource.cache(key, articles).
  * */
 interface CachedDataSource<K, T> : DataSource<K, T> {
-    suspend fun cache(key: K, data: List<T>)
+    suspend fun save(key: K, data: List<T>)
 
     suspend fun clear(key: K)
 
@@ -31,7 +31,7 @@ interface CachedDataSource<K, T> : DataSource<K, T> {
         private val cache: Cache<K, List<T>>
     ) : CachedDataSource<K, T> {
 
-        override suspend fun cache(key: K, data: List<T>) {
+        override suspend fun save(key: K, data: List<T>) {
             cache.save(key, data)
         }
 

@@ -1,12 +1,13 @@
 package com.dart69.dartnews.news.presentation.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ fun DartCard(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListItem(
     modifier: Modifier = Modifier,
@@ -46,31 +48,52 @@ fun ListItem(
     avatar: @Composable RowScope.() -> Unit,
     title: String,
     content: String,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    isSelected: Boolean = false,
 ) {
-    DartCard(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceBetween
+    Box(modifier = modifier) {
+        DartCard(
+            modifier = Modifier
+                .fillMaxSize()
+                .combinedClickable(
+                    onClick = onClick, onLongClick = onLongClick
+                )
         ) {
-
-            Column(
-                modifier = Modifier
-                    .weight(0.85f)
-                    .padding(contentPadding)
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                TitleText(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = title,
-                    maxLines = 1
-                )
-                ContentText(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = content,
-                    maxLines = 2,
-                    minLines = 2,
-                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(0.85f)
+                        .padding(contentPadding)
+                ) {
+                    TitleText(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = title,
+                        maxLines = 1
+                    )
+                    ContentText(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = content,
+                        maxLines = 2,
+                        minLines = 2,
+                    )
+                }
+                avatar()
             }
-            avatar()
+        }
+        if (isSelected) {
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(Dimens.SmallPadding),
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = stringResource(id = R.string.selected),
+                tint = MaterialTheme.colorScheme.onTertiary,
+            )
         }
     }
 }
@@ -116,6 +139,7 @@ fun AsyncAvatar(
 @Composable
 fun ArticleItemPreview() {
     val article = Article(
+        id = 0,
         title = stringResource(id = R.string.test_large_title),
         content = stringResource(id = R.string.test_large_content),
         titleImageUrl = "",
@@ -132,8 +156,11 @@ fun ArticleItemPreview() {
                 end = Dimens.SmallPadding,
                 top = Dimens.SmallPadding
             ),
+        isSelected = true,
         title = article.title,
         content = article.content,
+        onClick = {},
+        onLongClick = {},
         avatar = {
             AsyncAvatar(
                 modifier = Modifier.padding(
@@ -142,7 +169,7 @@ fun ArticleItemPreview() {
                     end = Dimens.SmallPadding
                 ),
                 model = R.drawable.image_sample,
-                contentDescription = "Avatar"
+                contentDescription = stringResource(id = R.string.article_avatar)
             )
         }
     )
