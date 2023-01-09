@@ -1,7 +1,7 @@
 package com.dart69.dartnews.main.presentation
 
 import androidx.lifecycle.ViewModel
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import kotlinx.coroutines.flow.*
 
 interface ScreenState {

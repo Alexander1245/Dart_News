@@ -6,7 +6,7 @@ import com.dart69.dartnews.news.data.mappers.ModelMapper
 import com.dart69.dartnews.news.data.mappers.RawModel
 import com.dart69.dartnews.news.domain.model.*
 import com.dart69.dartnews.news.domain.repository.SearchingRepository
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach

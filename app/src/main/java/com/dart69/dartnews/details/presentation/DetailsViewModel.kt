@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.*
-import com.dart69.dartnews.main.presentation.BaseViewModel
 import com.dart69.dartnews.main.presentation.EventViewModel
-import com.dart69.dartnews.main.presentation.ScreenState
 import com.dart69.dartnews.main.presentation.SingleUiEvent
 import com.dart69.dartnews.news.domain.model.Article
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch

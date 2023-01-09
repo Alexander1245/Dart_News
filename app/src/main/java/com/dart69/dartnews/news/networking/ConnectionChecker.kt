@@ -1,7 +1,7 @@
 package com.dart69.dartnews.news.networking
 
 import com.dart69.dartnews.news.di.HostAddress
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.UnknownHostException

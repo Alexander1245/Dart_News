@@ -3,11 +3,11 @@ package com.dart69.dartnews.news.domain.usecase
 import com.dart69.dartnews.news.domain.model.Article
 import com.dart69.dartnews.news.domain.model.ArticleDetails
 import com.dart69.dartnews.news.domain.model.ResultsFlow
+import com.dart69.dartnews.news.domain.model.combineFlatten
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
 import com.dart69.dartnews.news.networking.ConnectionObserver
 import com.dart69.dartnews.news.networking.ConnectionState
 import com.dart69.dartnews.news.networking.connectionErrorResults
-import com.dart69.dartnews.news.presentation.combineFlatten
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

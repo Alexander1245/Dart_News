@@ -1,4 +1,4 @@
-package com.dart69.dartnews.news.other
+package com.dart69.dartnews.news.di
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

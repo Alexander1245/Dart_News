@@ -16,12 +16,13 @@ import com.dart69.dartnews.ui.theme.NewsTopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewsTopAppBar(
+fun CustomTopAppBar(
     modifier: Modifier = Modifier,
     colors: TopAppBarColors = NewsTopAppBarDefaults.topAppBarColors(),
     titleText: String = stringResource(id = R.string.app_name),
     navigationIcon: ImageVector = Icons.Default.Menu,
     iconContentDescription: String = stringResource(id = R.string.open_menu),
+    isIconButtonEnabled: Boolean = true,
     onIconClick: () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {}
 ) {
@@ -32,7 +33,7 @@ fun NewsTopAppBar(
             TitleText(text = titleText)
         },
         navigationIcon = {
-            IconButton(onClick = onIconClick) {
+            IconButton(onClick = onIconClick, enabled = isIconButtonEnabled) {
                 Icon(imageVector = navigationIcon, contentDescription = iconContentDescription)
             }
         },
@@ -44,7 +45,7 @@ fun NewsTopAppBar(
 @Preview
 @Composable
 fun NewsTopAppBarPreview() {
-    NewsTopAppBar(
+    CustomTopAppBar(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()

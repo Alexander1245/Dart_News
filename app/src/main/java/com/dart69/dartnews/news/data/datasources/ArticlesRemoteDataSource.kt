@@ -2,7 +2,7 @@ package com.dart69.dartnews.news.data.datasources
 
 import com.dart69.dartnews.news.data.entities.ArticleResponse
 import com.dart69.dartnews.news.domain.model.ArticleDetails
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

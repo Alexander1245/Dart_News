@@ -15,8 +15,6 @@ import com.dart69.dartnews.news.data.mappers.ArticleEntityMapper
 import com.dart69.dartnews.news.data.mappers.ArticleResponseMapper
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
 import com.dart69.dartnews.news.networking.*
-import com.dart69.dartnews.news.other.AppDispatchers
-import com.dart69.dartnews.news.other.AvailableDispatchers
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

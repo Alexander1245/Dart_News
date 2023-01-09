@@ -10,4 +10,16 @@ interface ArticlesSelectionTracker : SelectionTracker<Article> {
 
     class Default @Inject constructor() : ArticlesSelectionTracker,
         BaseTracker by TrackerImplementation()
+
+    object None : ArticlesSelectionTracker {
+        override fun isSelected(item: Article): Boolean = false
+
+        override fun select(item: Article) {}
+
+        override fun unselect(item: Article) {}
+
+        override fun observeSelected(): Nothing = error("Illegal operation in None tracker.")
+
+        override fun hasSelection(): Boolean = false
+    }
 }

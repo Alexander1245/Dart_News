@@ -12,7 +12,7 @@ import com.dart69.dartnews.news.domain.model.ResultsFlow
 import com.dart69.dartnews.news.domain.model.resultsFlowOf
 import com.dart69.dartnews.news.domain.repository.ArticlesRepository
 import com.dart69.dartnews.news.domain.repository.SearchingRepository
-import com.dart69.dartnews.news.other.AvailableDispatchers
+import com.dart69.dartnews.news.di.AvailableDispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
