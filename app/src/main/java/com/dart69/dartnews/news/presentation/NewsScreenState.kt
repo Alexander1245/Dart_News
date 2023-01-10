@@ -62,7 +62,7 @@ sealed class NewsScreenState : ScreenState, Drawable {
         val isDrawerEnabled: Boolean,
         val isPeriodsEnabled: Boolean,
         val isGroupActionsEnabled: Boolean,
-        private val articles: List<Article>,
+        val articles: List<Article>,
         private val onArticleClick: (Article) -> Unit,
         private val onArticleLongClick: (Article) -> Unit,
     ) : NewsScreenState() {
