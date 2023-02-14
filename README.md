@@ -1,5 +1,5 @@
 # Dart News
-Read news from the NYTimes in your android device. 
+Read news from the NYTimes on your android device. 
 Made with Jetpack Compose.
 Material 3 and Material You are supported.
 
