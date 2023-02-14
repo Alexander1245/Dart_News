@@ -1,7 +1,7 @@
 # Dart News
-Read news from NYTimes on your android device. 
+Read news from the NYTimes in your android device. 
 Made with Jetpack Compose.
-Material 3 and Material You supported.
+Material 3 and Material You are supported.
 
 <b>Developement stack: </b>
 Kotlin, Coroutines, Flows, Compose, MVVM, Clean Architecture, Hilt
